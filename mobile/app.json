@@ -36,6 +36,21 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "aba2c431-08c9-4907-8258-b7f773b138eb"
+      }
+    },
+    "owner": "kaushalswapnil",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/aba2c431-08c9-4907-8258-b7f773b138eb"
     }
   }
 }
