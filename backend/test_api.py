@@ -7,7 +7,7 @@ import json
 
 SUPABASE_URL = "https://ngrudtbshliklqaznloi.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ncnVkdGJzaGxpa2xxYXpubG9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0MDUxMzAsImV4cCI6MjA5ODk4MTEzMH0.n5B5AV_8hvLQRayF3g1MhAbGqsSh4TAu6EiY_xrd4K4"
-API_URL = "http://localhost:8000"
+API_URL = "https://job-agent-9j1e.onrender.com"
 EMAIL = "swapnil.kaushal00@gmail.com"
 PASSWORD = "K@ushal31"  # Change if you used a different password
 

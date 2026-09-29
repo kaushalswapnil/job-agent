@@ -22,12 +22,43 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown()
 
 
+from fastapi.security import HTTPBearer
+
+security = HTTPBearer()
+
 app = FastAPI(
     title="Job Agent API",
     description="Autonomous AI Job Search & Application Agent",
     version="1.0.0",
     lifespan=lifespan,
+    swagger_ui_parameters={"persistAuthorization": True},
 )
+
+from fastapi.openapi.utils import get_openapi
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
+    schema["components"]["securitySchemes"] = {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+        }
+    }
+    for path in schema["paths"].values():
+        for method in path.values():
+            method["security"] = [{"BearerAuth": []}]
+    app.openapi_schema = schema
+    return schema
+
+app.openapi = custom_openapi
 
 s = get_settings()
 app.add_middleware(
