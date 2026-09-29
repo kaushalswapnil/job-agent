@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc libpq-dev curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY agents/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY agents/ ./
+COPY config/ ../config/
+COPY prompts/ ../prompts/
+
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["python", "-m", "orchestrator.main"]
+CMD ["--task", "discovery"]

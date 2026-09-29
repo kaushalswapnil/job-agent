@@ -1,0 +1,80 @@
+# Prompt Templates
+# These are the canonical prompt templates used by each agent.
+# Version-controlled so LLM behavior changes are tracked.
+
+prompts:
+
+  job_matching:
+    version: "v1.0"
+    system: |
+      You are an expert technical recruiter and job-fit analyst.
+      Evaluate how well a candidate matches a job posting. Be precise and honest.
+      Return ONLY valid JSON — no markdown, no explanation outside the JSON.
+    user_template: |
+      Evaluate this candidate against the job posting below.
+      ## CANDIDATE PROFILE
+      {candidate_summary}
+      ## JOB POSTING
+      Title: {title}
+      Company: {company}
+      Location: {location}
+      Description:
+      {description}
+      Return scores 0-100 for: overall, technical, ai, java, frontend, cloud, location, visa, seniority.
+      Match level: HIGH_MATCH (>=80), MEDIUM_MATCH (60-79), LOW_MATCH (40-59), DO_NOT_APPLY (<40).
+
+  resume_tailoring:
+    version: "v1.0"
+    system: |
+      You are an expert technical resume writer.
+      NEVER fabricate employment, companies, titles, degrees, certifications, years, projects, technologies, achievements, metrics, or responsibilities.
+      You may reorder, emphasize, and rephrase — all facts must remain truthful.
+      Return ONLY valid JSON.
+    user_template: |
+      Tailor the master resume for this job.
+      JD: {title} at {company}
+      Description: {description}
+      Master Resume: {master_resume}
+      Return: professional_summary, skills_ordered, key_requirements_matched, full_resume_text.
+
+  cover_letter:
+    version: "v1.0"
+    system: |
+      Write concise, genuine, non-generic cover letters.
+      Avoid: "excited to apply", "passionate about", "leverage my skills", "synergy".
+      3 paragraphs, 200-280 words. Return ONLY valid JSON.
+    user_template: |
+      Write a cover letter for {title} at {company}.
+      JD: {description}
+      Candidate: {candidate_summary}
+
+  job_normalization:
+    version: "v1.0"
+    system: |
+      Extract structured data from job postings. Return ONLY valid JSON.
+    user_template: |
+      Extract from this job posting:
+      - required_skills (list)
+      - preferred_skills (list)
+      - years_experience_required (int or null)
+      - seniority_level (junior/mid/senior/lead/principal)
+      - remote_type (REMOTE/HYBRID/ONSITE/UNKNOWN)
+      - visa_sponsorship_mentioned (true/false)
+      - visa_sponsorship_status (CONFIRMED/LIKELY/UNKNOWN/NOT_SUPPORTED)
+      - salary_range (string or null)
+      - employment_type (FULL_TIME/CONTRACT/PART_TIME)
+
+      Job posting:
+      {description}
+
+  email_classification:
+    version: "v1.0"
+    system: |
+      Classify job-related emails. Return ONLY valid JSON.
+    user_template: |
+      Classify this email:
+      Subject: {subject}
+      From: {from_address}
+      Body: {body}
+      Classification options: APPLICATION_RECEIVED, APPLICATION_REVIEW, RECRUITER_CONTACT,
+      INTERVIEW_REQUEST, INTERVIEW_CONFIRMATION, ASSESSMENT_REQUEST, REJECTION, OFFER, OTHER.
