@@ -1,3 +1,4 @@
+import time
 import structlog
 from app.core.llm import LLMClient
 from app.db.queries import get_unmatched_jobs, save_match, log_action
@@ -58,7 +59,7 @@ def run_matching(user_id: str, batch_size: int = 100) -> dict:
     llm = LLMClient(use_fast=True)
     evaluated = 0
     high_matches = 0
-    chunk_size = 50  # Score 50 jobs per LLM call — safe max for context window
+    chunk_size = 10  # 10 jobs per LLM call — avoids rate limits
 
     candidate_summary = {
         "name": config.get("full_name", "Candidate"),
@@ -73,7 +74,7 @@ def run_matching(user_id: str, batch_size: int = 100) -> dict:
         "work_auth": str(config.get("work_authorization") or {}),
     }
 
-    # Process in chunks of 20
+    total_batches = (len(jobs) + chunk_size - 1) // chunk_size
     for i in range(0, len(jobs), chunk_size):
         chunk = jobs[i:i + chunk_size]
         try:
@@ -101,11 +102,14 @@ def run_matching(user_id: str, batch_size: int = 100) -> dict:
                     logger.error("save_match_failed", job_id=job["id"], error=str(e))
 
             logger.info("batch_matched", batch=i // chunk_size + 1,
-                        total_batches=(len(jobs) + chunk_size - 1) // chunk_size,
-                        evaluated=evaluated, high_matches=high_matches)
+                        total_batches=total_batches, evaluated=evaluated, high_matches=high_matches)
+
+            if i + chunk_size < len(jobs):
+                time.sleep(5)  # avoid rate limits between batches
 
         except Exception as e:
             logger.error("batch_match_failed", batch_start=i, error=str(e))
+            time.sleep(15)  # back off on error
 
     return {"evaluated": evaluated, "high_matches": high_matches}
 
