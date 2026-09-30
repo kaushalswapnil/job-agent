@@ -47,7 +47,7 @@ Return ONLY a JSON array — one object per job in the same order:
 """
 
 
-def run_matching(user_id: str, batch_size: int = 100) -> dict:
+def run_matching(user_id: str, batch_size: int = 50) -> dict:
     config = _get_user_config(user_id)
     if not config:
         return {"error": "No candidate config found. Complete onboarding first."}
@@ -59,7 +59,7 @@ def run_matching(user_id: str, batch_size: int = 100) -> dict:
     llm = LLMClient(use_fast=True)
     evaluated = 0
     high_matches = 0
-    chunk_size = 10  # 10 jobs per LLM call — avoids rate limits
+    chunk_size = 5  # 5 jobs per LLM call — stays under free tier 3 RPM limit
 
     candidate_summary = {
         "name": config.get("full_name", "Candidate"),
@@ -105,11 +105,11 @@ def run_matching(user_id: str, batch_size: int = 100) -> dict:
                         total_batches=total_batches, evaluated=evaluated, high_matches=high_matches)
 
             if i + chunk_size < len(jobs):
-                time.sleep(5)  # avoid rate limits between batches
+                time.sleep(20)  # 20s between calls = ~3 RPM, safe for free tier
 
         except Exception as e:
             logger.error("batch_match_failed", batch_start=i, error=str(e))
-            time.sleep(15)  # back off on error
+            time.sleep(60)  # back off 60s on rate limit error
 
     return {"evaluated": evaluated, "high_matches": high_matches}
 
